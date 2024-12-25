@@ -39,3 +39,19 @@ th {
     padding: 5px;
     margin-left: 10px;
 }
+#suggestions-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 5px 0;
+    background-color: white;
+    border: 1px solid #ddd;
+    position: absolute;
+    width: 100%;
+}
+#suggestions-list li {
+    padding: 8px;
+    cursor: pointer;
+}
+#suggestions-list li:hover {
+    background-color: #f4f4f4;
+}

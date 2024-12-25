@@ -1,26 +1,36 @@
 [
   {
     "id": 1735140013202,
-    "product": "Test",
+    "product": "Lame",
     "oldPrice": "3.40",
     "newPrice": "5.50",
     "date": "25/12/2024",
     "isEditing": false,
-    "rayon": "a si je sais "
-  },
-  {
-    "id": 1735147436956,
-    "product": "cailloux ",
-    "oldPrice": "N/A",
-    "newPrice": "5.45",
-    "date": "25/12/2024",
-    "isEditing": false
+    "rayon": "Terrasse"
   },
   {
     "id": 1735147807555,
     "product": "Lame terrasse",
     "oldPrice": "N/A",
     "newPrice": "5.90",
+    "rayon": "Terrasse",
+    "date": "25/12/2024",
+    "isEditing": false
+  },
+  {
+    "id": 1735150970104,
+    "product": "Lame terrasse marron",
+    "oldPrice": "N/A",
+    "newPrice": "12.50",
+    "rayon": "Terrasse",
+    "date": "25/12/2024",
+    "isEditing": false
+  },
+  {
+    "id": 1735151017641,
+    "product": "Lame terrasse marron",
+    "oldPrice": "12.50",
+    "newPrice": "20.00",
     "rayon": "Terrasse",
     "date": "25/12/2024",
     "isEditing": false
