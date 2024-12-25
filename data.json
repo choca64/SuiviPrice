@@ -34,5 +34,23 @@
     "rayon": "Terrasse",
     "date": "25/12/2024",
     "isEditing": false
+  },
+  {
+    "id": 1735152648975,
+    "product": "Parpaing",
+    "oldPrice": "N/A",
+    "newPrice": "2.50",
+    "rayon": "Parpaing",
+    "date": "25/12/2024",
+    "isEditing": false
+  },
+  {
+    "id": 1735152663523,
+    "product": "Parpaing",
+    "oldPrice": "2.50",
+    "newPrice": "2.00",
+    "rayon": "Parpaing",
+    "date": "25/12/2024",
+    "isEditing": false
   }
 ]
