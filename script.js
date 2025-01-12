@@ -19,7 +19,10 @@ createApp({
             searchID: '',
             selectedRayon: '',
             selectedDate: '',
-            filteredSuggestions: [],
+            productSuggestions: [],
+            idSuggestions: [],
+            showProductSuggestions: false,
+            showIDSuggestions: false,
             backupEntry: null,
             showModal: false,
         };
@@ -31,9 +34,8 @@ createApp({
         filteredHistory() {
             let filtered = this.priceHistory;
 
-            // Recherche par ID
             if (this.searchID) {
-                filtered = filtered.filter(entry => entry.id.toString() === this.searchID);
+                filtered = filtered.filter(entry => entry.id.toString().includes(this.searchID));
             }
 
             if (this.selectedRayon) {
@@ -58,32 +60,48 @@ createApp({
         },
         filterProducts() {
             const searchQuery = this.newEntry.product.toLowerCase();
-            this.filteredSuggestions = this.priceHistory.filter(product =>
+            this.productSuggestions = this.priceHistory.filter(product =>
                 product.product.toLowerCase().includes(searchQuery)
             );
+            this.showProductSuggestions = true;
+        },
+        filterIDs() {
+            const searchQuery = this.newEntry.id.toString().toLowerCase();
+            this.idSuggestions = this.priceHistory.filter(entry =>
+                entry.id.toString().toLowerCase().includes(searchQuery)
+            );
+            this.showIDSuggestions = true;
         },
         selectProduct(product) {
             this.newEntry.id = product.id;
             this.newEntry.product = product.product;
             this.newEntry.newPrice = product.newPrice;
             this.newEntry.rayon = product.rayon;
-            this.filteredSuggestions = [];
+            this.showProductSuggestions = false;
+        },
+        selectID(entry) {
+            this.newEntry.id = entry.id.toString();
+            this.newEntry.product = entry.product;
+            this.newEntry.newPrice = entry.newPrice;
+            this.newEntry.rayon = entry.rayon;
+            this.showIDSuggestions = false;
+        },
+        hideSuggestions() {
+            this.showProductSuggestions = false;
+            this.showIDSuggestions = false;
         },
         async updatePrice() {
             const currentDate = new Date().toLocaleDateString('fr-FR');
 
-            // Trouver l'entrée existante
             const existingEntryIndex = this.priceHistory.findIndex(entry => entry.id === this.newEntry.id);
 
             if (existingEntryIndex !== -1) {
-                // Mise à jour de l'entrée existante
                 this.priceHistory[existingEntryIndex] = {
                     ...this.priceHistory[existingEntryIndex],
                     newPrice: parseFloat(this.newEntry.newPrice).toFixed(2),
                     date: currentDate,
                 };
             } else {
-                // Nouvelle entrée
                 const entry = {
                     id: this.newEntry.id || Date.now(),
                     product: this.newEntry.product,

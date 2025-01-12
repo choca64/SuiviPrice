@@ -106,5 +106,14 @@
     "rayon": "Poudreux",
     "date": "28/12/2024",
     "isEditing": false
+  },
+  {
+    "id": "84584584584",
+    "product": "Lame terrasse grise",
+    "oldPrice": "N/A",
+    "newPrice": "25.00",
+    "rayon": "Terrasse",
+    "date": "29/12/2024",
+    "isEditing": false
   }
 ]

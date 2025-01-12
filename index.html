@@ -9,7 +9,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable" defer></script>
     <script src="script.js" defer></script>
-   
 </head>
 <body>
     <div class="app" id="app">
@@ -22,14 +21,21 @@
                 <form @submit.prevent="updatePrice" class="formulaire">
                     <div class="inputtext">
                         <label for="product-id">ID Produit :</label>
-                        <input type="text" id="product-id" v-model="newEntry.id" readonly placeholder="Sélectionné automatiquement">
+                        <input type="text" id="product-id" v-model="newEntry.id" placeholder="Entrez l'ID du produit" required>
                     </div>
                     <div class="input-wrapper">
                         <label for="product-name">Nom Produit :</label>
-                        <input type="text" id="product-name" v-model="newEntry.product" @input="filterProducts" required>
-                        <ul v-if="filteredSuggestions.length > 0" id="suggestions-list">
+                        <input 
+                            type="text" 
+                            id="product-name" 
+                            v-model="newEntry.product" 
+                            @input="filterProducts" 
+                            @blur="hideSuggestions" 
+                            placeholder="Entrez le nom du produit" 
+                            required>
+                        <ul v-if="showProductSuggestions && productSuggestions.length > 0" id="suggestions-list">
                             <li 
-                                v-for="(product, index) in filteredSuggestions" 
+                                v-for="(product, index) in productSuggestions" 
                                 :key="product.id" 
                                 @click="selectProduct(product)">
                                 {{ product.product }} (ID: {{ product.id }})
@@ -48,7 +54,7 @@
                 </form>
             </section>
             <button @click="openModal" class="add-product-button">Ajouter un Produit</button>
-            
+
             <!-- Modal pour ajout de produit -->
             <div v-if="showModal" class="modal-overlay">
                 <div class="modal">
@@ -66,7 +72,7 @@
                             <label for="modal-new-price">Prix :</label>
                             <input type="number" id="modal-new-price" v-model="modalEntry.newPrice" step="0.01" required>
                         </div>
-                        <div class="inputtext">
+                        <div class="inputtextid">
                             <label for="modal-rayon">Rayon :</label>
                             <input type="text" id="modal-rayon" v-model="modalEntry.rayon" required>
                         </div>
@@ -82,10 +88,12 @@
                         <h2>Filtre par Rayon</h2>
                         <div class="selectrayon">
                             <label for="rayon-filter">Sélectionner un Rayon :</label>
-                            <select id="rayon-filter" v-model="selectedRayon">
-                                <option value="">All</option>
-                                <option v-for="rayon in uniqueRayons" :key="rayon" :value="rayon">{{ rayon }}</option>
-                            </select>
+                            <div class="choice">   
+                                <select id="rayon-filter" v-model="selectedRayon">
+                                    <option value="">All</option>
+                                    <option v-for="rayon in uniqueRayons" :key="rayon" :value="rayon">{{ rayon }}</option>
+                                </select>
+                            </div> 
                         </div>
                     </div>
                     <div class="date">
@@ -97,9 +105,22 @@
                     </div>    
                     <div class="id-search">
                         <h2>Recherche par ID</h2>
-                        <div class="inputtext">
-                            <label for="id-filter">Rechercher ID :</label>
-                            <input type="text" id="id-filter" v-model="searchID" placeholder="Entrez un ID">
+                        <div class="input-wrapper">
+                            <input 
+                                type="text" 
+                                id="id-filter" 
+                                v-model="searchID" 
+                                @input="filterIDs" 
+                                @blur="hideSuggestions" 
+                                placeholder="Entrez un ID">
+                            <ul v-if="showIDSuggestions && idSuggestions.length > 0" id="suggestions-list">
+                                <li 
+                                    v-for="(entry, index) in idSuggestions" 
+                                    :key="entry.id" 
+                                    @click="selectID(entry)">
+                                    {{ entry.id }} - {{ entry.product }}
+                                </li>
+                            </ul>
                         </div>
                     </div>
                 </section>
@@ -141,7 +162,7 @@
                         </tbody>
                     </table>
                     <div class="generatepdf">
-                    <button @click="generatePDF" class="generate-pdf">Télécharger le PDF</button>
+                        <button @click="generatePDF" class="generate-pdf">Télécharger le PDF</button>
                     </div>
                 </section>
             </div>

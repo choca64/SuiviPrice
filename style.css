@@ -116,14 +116,14 @@ form button:hover {
 #filters {
     background: #f9fafb;
     padding: 20px;
-    width: 50%;
+    width: fit-content;
     border-radius: 25px;
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: space-between;
+    gap: 80px; ;
 }
-.rayon, .date {
+.rayon, .date, .id-search {
     display: flex;
     flex-direction: column;
     gap: 15px;
@@ -131,7 +131,7 @@ form button:hover {
     border-radius: 25px;
     background-color: #f9fafb;
 }
-.selectrayon, .selectdate {
+.selectrayon, .selectdate, .selectid {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -140,6 +140,7 @@ form button:hover {
     gap: 20px;
     background-color: #f9fafb;
 }
+
 #filters label {
     display: block;
     font-weight: 500;
@@ -151,8 +152,8 @@ form button:hover {
     border: 1px solid #ddd;
     border-radius: 5px;
     font-size: 16px;
+    border-radius: 25px;
 }
-
 
 #suggestions-list {
     list-style: none;
@@ -183,8 +184,6 @@ form button:hover {
 .input-wrapper {
     position: relative;
 }
-
-
 
 table {
     width: 100%;
@@ -221,7 +220,7 @@ tr:hover {
 table tbody {
     display: block;
     max-height: 400px; /* Ajuste cette valeur pour limiter la hauteur */
-    overflow-y: auto; /* Barre de défilement verticale */
+    overflow-y: auto; /* Barre de dÃ©filement verticale */
 }
 
 table thead,
@@ -281,7 +280,7 @@ button:disabled {
 .generatepdf {
     width: 100%;
     display: flex;
-    justify-content: flex-end; /* Aligne le bouton à droite */
+    justify-content: flex-end; /* Aligne le bouton Ã  droite */
     padding: 10px 0;
 }
 .generatepdf button{
