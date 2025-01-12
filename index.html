@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Price Tracking System</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="./style.css">
     <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable" defer></script>
-    <script src="script.js" defer></script>
+    <script src="./script.js" defer></script>
 </head>
 <body>
     <div class="app" id="app">
@@ -21,7 +21,17 @@
                 <form @submit.prevent="updatePrice" class="formulaire">
                     <div class="inputtext">
                         <label for="product-id">ID Produit :</label>
-                        <input type="text" id="product-id" v-model="newEntry.id" placeholder="Entrez l'ID du produit" required>
+                        <div class="input-wrapper">
+                            <input type="text" id="product-id" v-model="newEntry.id" @input="filterProductIDs" @blur="hideSuggestions" placeholder="Entrez l'ID du produit" required>
+                            <ul v-if="showProductIDSuggestions && productIDSuggestions.length > 0" id="suggestions-list">
+                                <li 
+                                    v-for="(entry, index) in productIDSuggestions" 
+                                    :key="entry.id" 
+                                    @click="selectProduct(entry)">
+                                    {{ entry.id }} - {{ entry.product }}
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                     <div class="input-wrapper">
                         <label for="product-name">Nom Produit :</label>
@@ -110,12 +120,12 @@
                                 type="text" 
                                 id="id-filter" 
                                 v-model="searchID" 
-                                @input="filterIDs" 
+                                @input="filterSearchIDs" 
                                 @blur="hideSuggestions" 
                                 placeholder="Entrez un ID">
-                            <ul v-if="showIDSuggestions && idSuggestions.length > 0" id="suggestions-list">
+                            <ul v-if="showSearchIDSuggestions && searchIDSuggestions.length > 0" id="suggestions-list">
                                 <li 
-                                    v-for="(entry, index) in idSuggestions" 
+                                    v-for="(entry, index) in searchIDSuggestions" 
                                     :key="entry.id" 
                                     @click="selectID(entry)">
                                     {{ entry.id }} - {{ entry.product }}

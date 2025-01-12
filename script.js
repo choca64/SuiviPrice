@@ -20,9 +20,11 @@ createApp({
             selectedRayon: '',
             selectedDate: '',
             productSuggestions: [],
-            idSuggestions: [],
+            productIDSuggestions: [],
+            searchIDSuggestions: [],
             showProductSuggestions: false,
-            showIDSuggestions: false,
+            showProductIDSuggestions: false,
+            showSearchIDSuggestions: false,
             backupEntry: null,
             showModal: false,
         };
@@ -59,18 +61,25 @@ createApp({
             return `${day}/${month}/${year}`;
         },
         filterProducts() {
-            const searchQuery = this.newEntry.product.toLowerCase();
+            const searchQuery = this.newEntry.product.toLowerCase().trim();
             this.productSuggestions = this.priceHistory.filter(product =>
                 product.product.toLowerCase().includes(searchQuery)
             );
-            this.showProductSuggestions = true;
+            this.showProductSuggestions = this.productSuggestions.length > 0;
         },
-        filterIDs() {
-            const searchQuery = this.newEntry.id.toString().toLowerCase();
-            this.idSuggestions = this.priceHistory.filter(entry =>
+        filterProductIDs() {
+            const searchQuery = this.newEntry.id.toLowerCase().trim();
+            this.productIDSuggestions = this.priceHistory.filter(entry =>
                 entry.id.toString().toLowerCase().includes(searchQuery)
             );
-            this.showIDSuggestions = true;
+            this.showProductIDSuggestions = this.productIDSuggestions.length > 0;
+        },
+        filterSearchIDs() {
+            const searchQuery = this.searchID.toLowerCase().trim();
+            this.searchIDSuggestions = this.priceHistory.filter(entry =>
+                entry.id.toString().toLowerCase().includes(searchQuery)
+            );
+            this.showSearchIDSuggestions = this.searchIDSuggestions.length > 0;
         },
         selectProduct(product) {
             this.newEntry.id = product.id;
@@ -78,17 +87,41 @@ createApp({
             this.newEntry.newPrice = product.newPrice;
             this.newEntry.rayon = product.rayon;
             this.showProductSuggestions = false;
+            this.showProductIDSuggestions = false;
         },
         selectID(entry) {
-            this.newEntry.id = entry.id.toString();
-            this.newEntry.product = entry.product;
-            this.newEntry.newPrice = entry.newPrice;
-            this.newEntry.rayon = entry.rayon;
-            this.showIDSuggestions = false;
+            this.searchID = entry.id;
+            this.showSearchIDSuggestions = false;
         },
         hideSuggestions() {
-            this.showProductSuggestions = false;
-            this.showIDSuggestions = false;
+            setTimeout(() => {
+                this.showProductSuggestions = false;
+                this.showProductIDSuggestions = false;
+                this.showSearchIDSuggestions = false;
+            }, 200);
+        },
+        editEntry(index) {
+            this.backupEntry = { ...this.priceHistory[index] };
+            this.priceHistory[index].isEditing = true;
+        },
+        saveEdit(index) {
+            this.priceHistory[index].isEditing = false;
+            this.backupEntry = null;
+            this.saveData();
+        },
+        cancelEdit(index) {
+            this.priceHistory[index] = { ...this.backupEntry };
+            this.priceHistory[index].isEditing = false;
+            this.backupEntry = null;
+        },
+        confirmDelete(index) {
+            if (confirm("Êtes-vous sûr de vouloir supprimer cet élément ?")) {
+                this.deleteEntry(index);
+            }
+        },
+        deleteEntry(index) {
+            this.priceHistory.splice(index, 1);
+            this.saveData();
         },
         async updatePrice() {
             const currentDate = new Date().toLocaleDateString('fr-FR');
@@ -103,7 +136,7 @@ createApp({
                 };
             } else {
                 const entry = {
-                    id: this.newEntry.id || Date.now(),
+                    id: this.newEntry.id || Date.now().toString(),
                     product: this.newEntry.product,
                     oldPrice: "N/A",
                     newPrice: parseFloat(this.newEntry.newPrice).toFixed(2),
@@ -120,7 +153,7 @@ createApp({
         async addProduct() {
             const currentDate = new Date().toLocaleDateString('fr-FR');
             const entry = {
-                id: this.modalEntry.id || Date.now(),
+                id: this.modalEntry.id || Date.now().toString(),
                 product: this.modalEntry.product,
                 oldPrice: "N/A",
                 newPrice: parseFloat(this.modalEntry.newPrice).toFixed(2),
@@ -139,41 +172,33 @@ createApp({
         closeModal() {
             this.showModal = false;
         },
-        saveData() {
-            fetch('/save', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(this.priceHistory),
-            });
-        },
-        async loadData() {
-            const response = await fetch('/data.json');
-            if (response.ok) {
-                this.priceHistory = await response.json();
-                this.priceHistory.forEach(entry => (entry.isEditing = false));
+        async saveData() {
+            try {
+                const response = await fetch('/save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(this.priceHistory),
+                });
+                if (!response.ok) {
+                    console.error('Erreur lors de la sauvegarde :', response.statusText);
+                }
+            } catch (error) {
+                console.error('Impossible de se connecter au serveur :', error);
             }
         },
-        editEntry(index) {
-            this.priceHistory[index].isEditing = true;
-            this.backupEntry = { ...this.priceHistory[index] };
-        },
-        saveEdit(index) {
-            this.priceHistory[index].isEditing = false;
-            this.backupEntry = null;
-            this.saveData();
-        },
-        cancelEdit(index) {
-            this.priceHistory[index] = { ...this.backupEntry };
-            this.priceHistory[index].isEditing = false;
-            this.backupEntry = null;
-        },
-        deleteEntry(index) {
-            this.priceHistory.splice(index, 1);
-            this.saveData();
-        },
-        confirmDelete(index) {
-            if (confirm("Êtes-vous sûr de vouloir supprimer cet élément ?")) {
-                this.deleteEntry(index);
+        async loadData() {
+            try {
+                const response = await fetch('./data.json');
+                if (response.ok) {
+                    this.priceHistory = await response.json();
+                    this.priceHistory.forEach(entry => (entry.isEditing = false));
+                } else {
+                    console.warn('Fichier data.json introuvable.');
+                    this.priceHistory = [];
+                }
+            } catch (error) {
+                console.error('Erreur lors du chargement des données :', error);
+                this.priceHistory = [];
             }
         },
         generatePDF() {
