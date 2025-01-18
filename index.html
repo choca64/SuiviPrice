@@ -8,12 +8,13 @@
     <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable" defer></script>
+    <script src="https://kit.fontawesome.com/cd0d448035.js" crossorigin="anonymous"></script>
     <script src="./script.js" defer></script>
 </head>
 <body>
     <div class="app" id="app">
         <div class="container">
-            <h1>Price Tracking System</h1>
+            <h1>Suivi des Prix</h1>
         </div>
         <main>
             <section class="form-section" id="form-section">
@@ -60,15 +61,16 @@
                         <label for="rayon">Rayon :</label>
                         <input type="text" id="rayon" v-model="newEntry.rayon" required>
                     </div>
-                    <button type="submit">Update Price</button>
+                    <button class="submit" type="submit"> <span>Update Price</span></button>
                 </form>
+                <div class="addbtn">
+                    <button @click="openModal" class="add-product-button"><i class="fa-solid fa-plus"></i> Ajouter un Produit</button>
+                </div>
             </section>
-            <button @click="openModal" class="add-product-button">Ajouter un Produit</button>
 
-            <!-- Modal pour ajout de produit -->
             <div v-if="showModal" class="modal-overlay">
+                <h2>Ajouter un Produit</h2>
                 <div class="modal">
-                    <h2>Ajouter un Produit</h2>
                     <form @submit.prevent="addProduct" class="modal-form">
                         <div class="inputtext">
                             <label for="modal-product-id">ID Produit :</label>
@@ -86,9 +88,11 @@
                             <label for="modal-rayon">Rayon :</label>
                             <input type="text" id="modal-rayon" v-model="modalEntry.rayon" required>
                         </div>
-                        <button type="submit">Ajouter Produit</button>
-                        <button type="button" @click="closeModal">Annuler</button>
                     </form>
+                    <div class="modal-buttons">
+                        <button class="submit-modal" type="submit" @click="addProduct">Ajouter Produit</button>
+                        <button class="cancel-modal" type="button" @click="closeModal">Annuler</button>
+                    </div>
                 </div>
             </div>
 
@@ -135,7 +139,9 @@
                     </div>
                 </section>
                 <section id="price-table">
-                    <h2>Price History</h2>
+                    <div class="titletable">
+                        <h2>Price History</h2>
+                    </div>
                     <table>
                         <thead>
                             <tr>
@@ -163,16 +169,46 @@
                                 <td>{{ entry.newPrice }}</td>
                                 <td>{{ formatDate(entry.date) }}</td>
                                 <td class="actions">
-                                    <button v-if="!entry.isEditing" @click="editEntry(index)">Edit</button>
-                                    <button v-if="entry.isEditing" @click="saveEdit(index)">Save</button>
-                                    <button v-if="entry.isEditing" @click="cancelEdit(index)">Cancel</button>
-                                    <button @click="confirmDelete(index)">Delete</button>
+                                    <button class="edit" v-if="!entry.isEditing" @click="editEntry(index)">Modifier</button>
+                                    <button class="save" v-if="entry.isEditing" @click="saveEdit(index)">Enregister</button>
+                                    <button class="cancel" v-if="entry.isEditing" @click="cancelEdit(index)">Retour</button>
+                                    <button class="delete" @click="confirmDelete(index)">Supprimer</button>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
+                    <section id="task-section">
+                        <h2>Ajouter des tâches au PDF</h2>
+                        <div class="task-header">
+                            <button class="add-task-button" @click="openTaskModal"><i class="fa-solid fa-plus"></i> Ajouter Tâches</button>
+                        </div>
+                        <div v-if="taskModalVisible" class="modal-overlay">
+                            <h2>Ajouter une Tâche</h2>
+                            <div class="modal">
+                                <form @submit.prevent="addNewTask" class="modal-form">
+                                    <div class="inputtext">
+                                        <label for="new-task-name">Nom de la Tâche :</label>
+                                        <input type="text" id="new-task-name" v-model="newTask" placeholder="Entrez le nom de la tâche" required>
+                                    </div>
+                                </form>
+                                <div class="modal-buttons">
+                                    <button class="submit-modal-task" type="submit" @click="addNewTask"><i class="fa-solid fa-check-to-slot"></i></button>
+                                    <button class="cancel-modal-task" type="button" @click="closeTaskModal"><i class="fa-solid fa-ban"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="task">
+                            <div class="card" 
+                                v-for="task in tasks"
+                                :key="task"
+                                :class="{ active: isTaskSelected(task) }"
+                                @click="toggleTask(task)">
+                                <h3>{{ task }}</h3>
+                            </div>
+                        </div>
+                    </section>
                     <div class="generatepdf">
-                        <button @click="generatePDF" class="generate-pdf">Télécharger le PDF</button>
+                        <button @click="generatePDF" class="generate-pdf"><i class="fa-solid fa-download"></i>Télécharger le PDF</button>
                     </div>
                 </section>
             </div>

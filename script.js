@@ -27,6 +27,10 @@ createApp({
             showSearchIDSuggestions: false,
             backupEntry: null,
             showModal: false,
+            tasks: ['Nettoyer', 'Mise en rayon', 'Facing', 'Prix', 'Autre tâche'], // Toutes les tâches visibles
+            tasksSelected: [], // Tâches sélectionnées uniquement
+            taskModalVisible: false,
+            newTask: ''
         };
     },
     computed: {
@@ -54,6 +58,29 @@ createApp({
         },
     },
     methods: {
+        toggleTask(task) {
+            const index = this.tasksSelected.indexOf(task);
+            if (index === -1) {
+                // Ajouter la tâche à la liste des tâches sélectionnées
+                this.tasksSelected.push(task);
+            } else {
+                // Supprimer la tâche de la liste des tâches sélectionnées
+                this.tasksSelected.splice(index, 1);
+            }
+        },
+        isTaskSelected(task) {
+            return this.tasksSelected.includes(task);
+        },
+        addNewTask() {
+            if (this.newTask.trim() !== '') {
+                const task = this.newTask.trim();
+                if (!this.tasks.includes(task)) {
+                    this.tasks.push(task); // Ajoute à toutes les tâches visibles
+                }
+                this.newTask = ''; // Réinitialise le champ
+                this.taskModalVisible = false; // Ferme le modal
+            }
+        },
         formatDate(dateStr, isInput = false) {
             const [year, month, day] = isInput
                 ? dateStr.split('-')
@@ -172,6 +199,12 @@ createApp({
         closeModal() {
             this.showModal = false;
         },
+        openTaskModal() {
+            this.taskModalVisible = true;
+        },
+        closeTaskModal() {
+            this.taskModalVisible = false;
+        },
         async saveData() {
             try {
                 const response = await fetch('/save', {
@@ -206,7 +239,7 @@ createApp({
             const doc = new jsPDF();
 
             doc.setFontSize(14);
-            doc.text('Suivie des prix', 105, 10, { align: 'center' });
+            doc.text('Suivi des prix', 105, 10, { align: 'center' });
 
             const tableColumns = ['ID', 'Produit', 'Rayon', 'Prix Ancien', 'Prix Nouveau', 'Date'];
             const tableRows = this.filteredHistory.map(entry => [
@@ -225,7 +258,12 @@ createApp({
                 theme: 'striped',
             });
 
-            doc.save('Suivie_Prix.pdf');
+            doc.text('Tâches sélectionnées :', 10, doc.lastAutoTable.finalY + 10);
+            this.tasksSelected.forEach((task, index) => {
+                doc.text(`${index + 1}. ${task}`, 10, doc.lastAutoTable.finalY + 20 + index * 10);
+            });
+
+            doc.save('Suivi_Prix.pdf');
         },
     },
     async mounted() {
